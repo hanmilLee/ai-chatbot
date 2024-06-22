@@ -1,5 +1,6 @@
 import 'server-only'
 
+// 필요한 모듈들 임포트
 import {
   createAI,
   createStreamableUI,
@@ -36,6 +37,7 @@ import { SpinnerMessage, UserMessage } from '@/components/stocks/message'
 import { Chat, Message } from '@/lib/types'
 import { auth } from '@/auth'
 
+// 주식 구매 확인 함수
 async function confirmPurchase(symbol: string, price: number, amount: number) {
   'use server'
 
@@ -106,6 +108,7 @@ async function confirmPurchase(symbol: string, price: number, amount: number) {
   }
 }
 
+// 사용자 메시지 제출 함수
 async function submitUserMessage(content: string) {
   'use server'
 
@@ -483,16 +486,19 @@ async function submitUserMessage(content: string) {
   }
 }
 
+// AI 상태 타입 정의
 export type AIState = {
   chatId: string
   messages: Message[]
 }
 
+// UI 상태 타입 정의
 export type UIState = {
   id: string
   display: React.ReactNode
 }[]
 
+// AI 생성 함수
 export const AI = createAI<AIState, UIState>({
   actions: {
     submitUserMessage,
@@ -547,6 +553,7 @@ export const AI = createAI<AIState, UIState>({
   }
 })
 
+// AI 상태로부터 UI 상태를 가져오는 함수
 export const getUIStateFromAIState = (aiState: Chat) => {
   return aiState.messages
     .filter(message => message.role !== 'system')
