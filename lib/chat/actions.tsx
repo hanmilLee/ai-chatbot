@@ -185,7 +185,8 @@ export const AI = createAI<AIState>({
       const aiState = getAIState()
 
       if (aiState) {
-        return aiState.messages.map(message => message.content).join('\n')
+        const uiState = getUIStateFromAIState(aiState)
+        return uiState
       }
     } else {
       return
@@ -221,3 +222,44 @@ export const AI = createAI<AIState>({
     }
   }
 })
+
+// AI 상태로부터 UI 상태를 가져오는 함수
+export const getUIStateFromAIState = (aiState: Chat) => {
+  return aiState.messages
+    .filter(message => message.role !== 'system')
+    .map((message, index) => ({
+      id: `${aiState.chatId}-${index}`,
+      display:
+        message.role === 'tool' ? (
+          message.content.map(tool => {
+            return tool.toolName === 'listStocks' ? (
+              <BotCard>
+                {/* TODO: Infer types based on the tool result*/}
+                {/* @ts-expect-error */}
+                <Stocks props={tool.result} />
+              </BotCard>
+            ) : tool.toolName === 'showStockPrice' ? (
+              <BotCard>
+                {/* @ts-expect-error */}
+                <Stock props={tool.result} />
+              </BotCard>
+            ) : tool.toolName === 'showStockPurchase' ? (
+              <BotCard>
+                {/* @ts-expect-error */}
+                <Purchase props={tool.result} />
+              </BotCard>
+            ) : tool.toolName === 'getEvents' ? (
+              <BotCard>
+                {/* @ts-expect-error */}
+                <Events props={tool.result} />
+              </BotCard>
+            ) : null
+          })
+        ) : message.role === 'user' ? (
+          <UserMessage>{message.content as string}</UserMessage>
+        ) : message.role === 'assistant' &&
+          typeof message.content === 'string' ? (
+          <BotMessage content={message.content} />
+        ) : null
+    }))
+}

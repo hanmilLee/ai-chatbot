@@ -130,6 +130,7 @@ export async function shareChat(id: string) {
 
 export async function saveChat(chat: Chat) {
   const session = await auth()
+  console.log('chat', chat)
 
   if (session && session.user) {
     const pipeline = kv.pipeline()
